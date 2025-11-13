@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: 1
+      author: spring-security-ch06
+      changes:
+        - createTable:
+            tableName: CT_USERS
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: VARCHAR(50)
+              - column:
+                  name: last_name
+                  type: VARCHAR(50)
+              - column:
+                  name: email
+                  type: VARCHAR(50)
+              - column:
+                  name: username
+                  type: VARCHAR(50)
+              - column:
+                  name: password
+                  type: VARCHAR(100)

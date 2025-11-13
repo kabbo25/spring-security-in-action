@@ -1,13 +1,12 @@
-package spring.in.security.chapter12;
+package com.manning.sbip.ch06;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class Chapter12ApplicationTests {
+class Chapter6ApplicationTests {
 
-	@Test
-	void contextLoads() {
-	}
-
+    @Test
+    void contextLoads() {
+    }
 }

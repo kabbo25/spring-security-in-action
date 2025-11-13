@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Registration - Spring Security Chapter 6</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">User Registration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${param.success}" class="alert alert-success" role="alert">
+                            Registration successful! You can now <a th:href="@{/login}">login</a>.
+                        </div>
+
+                        <form th:action="@{/adduser}" th:object="${user}" method="post" id="registrationForm">
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="firstName" class="form-label">First Name</label>
+                                    <input type="text" class="form-control" id="firstName" th:field="*{firstName}">
+                                    <div th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="text-danger small"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="lastName" class="form-label">Last Name</label>
+                                    <input type="text" class="form-control" id="lastName" th:field="*{lastName}">
+                                    <div th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="text-danger small"></div>
+                                </div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username</label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}">
+                                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger small"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" th:field="*{email}">
+                                <div th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-danger small"></div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="password" class="form-label">Password</label>
+                                    <input type="password" class="form-control" id="password" th:field="*{password}">
+                                    <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small"></div>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                                    <input type="password" class="form-control" id="confirmPassword" th:field="*{confirmPassword}">
+                                    <div th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="text-danger small"></div>
+                                </div>
+                            </div>
+
+                            <div id="passwordMismatchError" class="alert alert-danger d-none" role="alert">
+                                Passwords do not match!
+                            </div>
+
+                            <div class="d-grid">
+                                <button type="submit" class="btn btn-primary">Register</button>
+                            </div>
+                        </form>
+
+                        <div class="text-center mt-3">
+                            <p>Already have an account? <a th:href="@{/login}">Login here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        $(document).ready(function() {
+            console.log("Registration page loaded with jQuery version: " + $.fn.jquery);
+
+            // Password validation using jQuery
+            $('#registrationForm').on('submit', function(e) {
+                var password = $('#password').val();
+                var confirmPassword = $('#confirmPassword').val();
+
+                if (password !== confirmPassword) {
+                    e.preventDefault();
+                    $('#passwordMismatchError').removeClass('d-none');
+                    return false;
+                } else {
+                    $('#passwordMismatchError').addClass('d-none');
+                }
+            });
+
+            // Hide error message when user starts typing
+            $('#password, #confirmPassword').on('input', function() {
+                $('#passwordMismatchError').addClass('d-none');
+            });
+        });
+    </script>
+</body>
+</html>

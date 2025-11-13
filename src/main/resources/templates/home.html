@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home - Spring Security Chapter 6</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Welcome to Spring Security Chapter 6</h3>
+                    </div>
+                    <div class="card-body">
+                        <div sec:authorize="isAuthenticated()">
+                            <h4>Hello, <span sec:authentication="name">User</span>!</h4>
+                            <p>You are successfully logged in.</p>
+
+                            <div class="mt-4">
+                                <h5>User Information:</h5>
+                                <ul>
+                                    <li><strong>Username:</strong> <span sec:authentication="name">User</span></li>
+                                    <li><strong>Authorities:</strong> <span sec:authentication="authorities">Roles</span></li>
+                                </ul>
+                            </div>
+
+                            <form th:action="@{/logout}" method="post" class="mt-4">
+                                <button type="submit" class="btn btn-danger">Logout</button>
+                            </form>
+                        </div>
+
+                        <div sec:authorize="!isAuthenticated()">
+                            <p>Please <a th:href="@{/login}">login</a> to access the application.</p>
+                            <p>Don't have an account? <a th:href="@{/adduser}">Register here</a></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        $(document).ready(function() {
+            console.log("Home page loaded with jQuery version: " + $.fn.jquery);
+        });
+    </script>
+</body>
+</html>
