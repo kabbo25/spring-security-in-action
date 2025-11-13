@@ -1,0 +1,28 @@
+databaseChangeLog:
+  - changeSet:
+      id: load-data-2.0
+      author: chapter6-seed-data
+      changes:
+        - loadData:
+            file: db/changelog/users-seed-data.csv
+            relativeToChangelogFile: false
+            tableName: CT_USERS
+            columns:
+              - column:
+                  name: id
+                  type: NUMERIC
+              - column:
+                  name: first_name
+                  type: STRING
+              - column:
+                  name: last_name
+                  type: STRING
+              - column:
+                  name: email
+                  type: STRING
+              - column:
+                  name: username
+                  type: STRING
+              - column:
+                  name: password
+                  type: STRING

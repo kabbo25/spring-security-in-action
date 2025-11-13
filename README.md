@@ -9,9 +9,10 @@ This project demonstrates user registration and authentication using Spring Secu
 - Spring Security 6 configuration
 - Thymeleaf templates with Spring Security integration
 - jQuery integration via WebJars
-- Liquibase database migration
-- H2 in-memory database
+- Liquibase database migration with seed data
+- PostgreSQL database with environment variable support
 - BCrypt password encoding
+- Pre-loaded test users for quick testing
 
 ## Technologies
 
@@ -19,7 +20,7 @@ This project demonstrates user registration and authentication using Spring Secu
 - **Spring Security 6**
 - **Thymeleaf** with Spring Security extras
 - **Liquibase** for database migrations
-- **H2 Database** (in-memory)
+- **PostgreSQL Database**
 - **jQuery 3.7.1** via WebJars
 - **Bootstrap 5.3.3** via WebJars
 - **Lombok** for reducing boilerplate code
@@ -51,7 +52,9 @@ src/main/java/com/manning/sbip/ch06/
 src/main/resources/
 ├── db/changelog/
 │   ├── changelog-master.yaml            # Liquibase master changelog
-│   └── changelog-1.0.yaml               # Database schema changelog
+│   ├── changelog-1.0.yaml               # Database schema changelog
+│   ├── changelog-2.0.yaml               # Seed data changelog
+│   └── users-seed-data.csv              # Test users seed data
 ├── templates/
 │   ├── add-user.html                    # User registration page
 │   ├── home.html                        # Home page
@@ -78,16 +81,38 @@ src/main/resources/
    - Home page: http://localhost:8080/
    - Registration page: http://localhost:8080/adduser
    - Login page: http://localhost:8080/login
-   - H2 Console (for debugging): http://localhost:8080/h2-console
 
 ## Database Configuration
 
-The application uses H2 in-memory database with the following credentials:
-- **JDBC URL:** jdbc:h2:mem:testdb
-- **Username:** sa
-- **Password:** (empty)
+The application uses PostgreSQL database with environment variable support:
 
-Database schema is managed by Liquibase and is automatically created on application startup.
+### Default Configuration
+- **JDBC URL:** jdbc:postgresql://localhost:5432/app
+- **Username:** sa
+- **Password:** Admin@123!
+- **Driver:** org.postgresql.Driver
+
+### Environment Variables (Optional)
+You can override the default configuration using these environment variables:
+- `SSO_USER_DATABASE_URL` - Database JDBC URL
+- `SSO_USER_DATABASE_USERNAME` - Database username
+- `SSO_USER_DATABASE_PASSWORD` - Database password
+- `SSO_USER_DATABASE_DRIVER` - Database driver class name
+
+### Database Schema and Seed Data
+- Database schema is managed by Liquibase and is automatically created on application startup
+- Seed data with test users is automatically loaded via Liquibase
+
+### Test Users (Pre-loaded)
+The following test users are available for login without registration:
+
+| Username   | Password | First Name | Last Name | Email                    |
+|------------|----------|------------|-----------|--------------------------|
+| testuser   | password | John       | Doe       | john.doe@example.com     |
+| janesmith  | password | Jane       | Smith     | jane.smith@example.com   |
+| admin      | password | Admin      | User      | admin@example.com        |
+
+All test users use the password: **password**
 
 ## Security Configuration
 
@@ -147,6 +172,7 @@ Database schema is managed by Liquibase and is automatically created on applicat
 - YAML-based changelogs
 - Automatic schema creation
 - Version control for database changes
+- CSV-based seed data loading for test users
 
 ### 6. WebJars for Frontend Dependencies
 - jQuery served via WebJars
@@ -163,6 +189,8 @@ mvn test
 ## Notes
 
 - This is a learning project based on "Spring Security in Action" Chapter 6
-- Uses in-memory H2 database for simplicity (not suitable for production)
+- Uses PostgreSQL database (ensure PostgreSQL is running on localhost:5432 or configure using environment variables)
 - Passwords are securely hashed using BCrypt
 - All authentication and authorization is handled by Spring Security
+- Test users are pre-loaded via Liquibase for immediate testing
+- Database configuration supports environment variables for flexible deployment

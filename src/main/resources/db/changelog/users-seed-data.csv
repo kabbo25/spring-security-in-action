@@ -1,0 +1,4 @@
+id,first_name,last_name,email,username,password
+1,John,Doe,john.doe@example.com,testuser,$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG13AV1YfQQ1QwnZeS
+2,Jane,Smith,jane.smith@example.com,janesmith,$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG13AV1YfQQ1QwnZeS
+3,Admin,User,admin@example.com,admin,$2a$10$dXJ3SW6G7P50lGmMkkmwe.20cQQubK3.HZWzG13AV1YfQQ1QwnZeS
