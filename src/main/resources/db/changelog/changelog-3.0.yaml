@@ -1,0 +1,126 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-setting-table-for-jwt-keys
+      author: chapter6-jwt-keys
+      comment: Create setting table to store organization-wide configuration including JWT keys
+      changes:
+        - createTable:
+            tableName: setting
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: organization_code
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: organization_name
+                  type: VARCHAR(255)
+              - column:
+                  name: jwt_private_key
+                  type: TEXT
+                  remarks: RSA private key in PEM format for JWT signing
+              - column:
+                  name: jwt_public_key
+                  type: TEXT
+                  remarks: RSA public key in PEM format for JWT verification
+              - column:
+                  name: jwt_algorithm
+                  type: VARCHAR(20)
+                  defaultValue: RS256
+                  remarks: JWT signing algorithm (RS256, RS384, RS512)
+              - column:
+                  name: jwt_issuer
+                  type: VARCHAR(255)
+                  remarks: JWT issuer claim (iss)
+              - column:
+                  name: jwt_expiration_minutes
+                  type: INTEGER
+                  defaultValue: 60
+                  remarks: JWT token expiration time in minutes
+              - column:
+                  name: created_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: TIMESTAMP
+                  defaultValueComputed: CURRENT_TIMESTAMP
+                  constraints:
+                    nullable: false
+
+        - createIndex:
+            tableName: setting
+            indexName: idx_setting_org_code
+            columns:
+              - column:
+                  name: organization_code
+
+        - addCheckConstraint:
+            tableName: setting
+            constraintName: chk_jwt_algorithm
+            checkConstraint: "jwt_algorithm IN ('RS256', 'RS384', 'RS512', 'HS256', 'HS384', 'HS512')"
+
+  - changeSet:
+      id: insert-default-organization-setting
+      author: chapter6-jwt-keys
+      comment: Insert default organization (DSI-007) to hold JWT keys
+      changes:
+        - insert:
+            tableName: setting
+            columns:
+              - column:
+                  name: organization_code
+                  value: DSI-007
+              - column:
+                  name: organization_name
+                  value: DSI Innovators
+              - column:
+                  name: jwt_algorithm
+                  value: RS256
+              - column:
+                  name: jwt_issuer
+                  value: https://springauth.local
+              - column:
+                  name: jwt_expiration_minutes
+                  value: 60
+
+      rollback:
+        - delete:
+            tableName: setting
+            where: organization_code = 'DSI-007'
+
+  - changeSet:
+      id: add-setting-updated-trigger
+      author: chapter6-jwt-keys
+      comment: Auto-update updated_at timestamp on row modification
+      changes:
+        - sql:
+            sql: |
+              CREATE OR REPLACE FUNCTION update_updated_at_column()
+              RETURNS TRIGGER AS $$
+              BEGIN
+                NEW.updated_at = CURRENT_TIMESTAMP;
+                RETURN NEW;
+              END;
+              $$ LANGUAGE plpgsql;
+
+              CREATE TRIGGER trigger_setting_updated_at
+              BEFORE UPDATE ON setting
+              FOR EACH ROW
+              EXECUTE FUNCTION update_updated_at_column();
+
+      rollback:
+        - sql:
+            sql: |
+              DROP TRIGGER IF EXISTS trigger_setting_updated_at ON setting;
+              DROP FUNCTION IF EXISTS update_updated_at_column();

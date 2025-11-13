@@ -31,3 +31,19 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### JWT Keys and Secrets ###
+keys/
+*.jks
+*.p12
+*.pem
+*.key
+*.crt
+*.cer
+private_key*
+public_key*
+jwt-keystore*
+
+### Environment Variables ###
+.env.local
+.env.*.local

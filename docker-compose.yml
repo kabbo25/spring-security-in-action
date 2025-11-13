@@ -1,0 +1,126 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:17-alpine
+    container_name: spring-security-postgres
+    environment:
+      POSTGRES_DB: app
+      POSTGRES_USER: sa
+      POSTGRES_PASSWORD: Admin@123!
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - spring-security-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sa -d app"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+  # Liquibase Migration Service
+  liquibase:
+    build:
+      context: .
+      dockerfile: Dockerfile.liquibase
+    container_name: spring-security-liquibase
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      LIQUIBASE_COMMAND_URL: jdbc:postgresql://postgres:5432/app
+      LIQUIBASE_COMMAND_USERNAME: sa
+      LIQUIBASE_COMMAND_PASSWORD: Admin@123!
+      LIQUIBASE_COMMAND_CHANGELOG_FILE: db/changelog/changelog-master.yaml
+    volumes:
+      - ./src/main/resources/db/changelog:/liquibase/changelog/db/changelog
+    networks:
+      - spring-security-network
+    command:
+      - --changelog-file=db/changelog/changelog-master.yaml
+      - --url=jdbc:postgresql://postgres:5432/app
+      - --username=sa
+      - --password=Admin@123!
+      - update
+
+  # JWT Keys Initialization Service
+  jwt-keys-init:
+    image: postgres:17-alpine
+    container_name: spring-security-jwt-init
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      ORGANIZATION_CODE: DSI-007
+      JWT_KEYS_DIR: /jwt-keys
+      SSO_USER_DATABASE_HOST: postgres
+      SSO_USER_DATABASE_PORT: 5432
+      SSO_USER_DATABASE_NAME: app
+      SSO_USER_DATABASE_USERNAME: sa
+      SSO_USER_DATABASE_PASSWORD: Admin@123!
+    volumes:
+      - ./keys:/jwt-keys:ro
+      - ./scripts/update-jwt-keys.sh:/scripts/update-jwt-keys.sh:ro
+    networks:
+      - spring-security-network
+    command: ["/bin/sh", "/scripts/update-jwt-keys.sh"]
+    restart: "no"
+
+  # Spring Boot Application Service
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: spring-security-app
+    depends_on:
+      liquibase:
+        condition: service_completed_successfully
+    environment:
+      SSO_USER_DATABASE_URL: jdbc:postgresql://postgres:5432/app
+      SSO_USER_DATABASE_USERNAME: sa
+      SSO_USER_DATABASE_PASSWORD: Admin@123!
+      SSO_USER_DATABASE_DRIVER: org.postgresql.Driver
+      SPRING_PROFILES_ACTIVE: default
+    ports:
+      - "8080:8080"
+    networks:
+      - spring-security-network
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/ || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Nginx Reverse Proxy Service
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: spring-security-nginx
+    depends_on:
+      app:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/conf.d:/etc/nginx/conf.d:ro
+    networks:
+      - spring-security-network
+    healthcheck:
+      test: ["CMD", "nginx", "-t"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+networks:
+  spring-security-network:
+    driver: bridge
+
+volumes:
+  postgres-data:
+    driver: local
