@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Configuration - Admin</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-8">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Email Server Configuration</h3>
+                    </div>
+                    <div class="card-body">
+                        <div th:if="${param.success}" class="alert alert-success" role="alert">
+                            Email configuration saved successfully!
+                        </div>
+
+                        <div id="testResult" class="alert d-none" role="alert"></div>
+
+                        <form th:action="@{/admin/email-config/save}" th:object="${emailConfig}" method="post" id="emailConfigForm">
+                            <div class="mb-3">
+                                <label for="host" class="form-label">SMTP Host</label>
+                                <input type="text" class="form-control" id="host" th:field="*{host}"
+                                       placeholder="e.g., smtp.gmail.com">
+                                <div th:if="${#fields.hasErrors('host')}" th:errors="*{host}" class="text-danger small"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="port" class="form-label">SMTP Port</label>
+                                <input type="number" class="form-control" id="port" th:field="*{port}"
+                                       placeholder="e.g., 587">
+                                <div th:if="${#fields.hasErrors('port')}" th:errors="*{port}" class="text-danger small"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="username" class="form-label">Username (Email)</label>
+                                <input type="text" class="form-control" id="username" th:field="*{username}"
+                                       placeholder="your-email@gmail.com">
+                                <div th:if="${#fields.hasErrors('username')}" th:errors="*{username}" class="text-danger small"></div>
+                            </div>
+
+                            <div class="mb-3">
+                                <label for="password" class="form-label">Password</label>
+                                <input type="password" class="form-control" id="password" th:field="*{password}"
+                                       placeholder="App password or email password">
+                                <div th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-danger small"></div>
+                                <small class="form-text text-muted">
+                                    For Gmail, use an App Password from your Google Account settings.
+                                </small>
+                            </div>
+
+                            <div class="alert alert-info" role="alert">
+                                <strong>Note:</strong> Make sure to test the connection before saving to ensure the configuration is correct.
+                            </div>
+
+                            <div class="d-grid gap-2">
+                                <button type="button" id="testConnectionBtn" class="btn btn-secondary">
+                                    <span id="testBtnText">Test Connection</span>
+                                    <span id="testSpinner" class="spinner-border spinner-border-sm d-none" role="status" aria-hidden="true"></span>
+                                </button>
+                                <button type="submit" id="saveBtn" class="btn btn-primary">
+                                    Save Configuration
+                                </button>
+                                <a th:href="@{/}" class="btn btn-outline-secondary">Back to Home</a>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+    <script>
+        $(document).ready(function() {
+            $('#testConnectionBtn').click(function() {
+                var host = $('#host').val();
+                var port = $('#port').val();
+                var username = $('#username').val();
+                var password = $('#password').val();
+
+                // Validation
+                if (!host || !port || !username || !password) {
+                    showAlert('Please fill in all fields before testing the connection.', 'warning');
+                    return;
+                }
+
+                // Show loading spinner
+                $('#testBtnText').text('Testing...');
+                $('#testSpinner').removeClass('d-none');
+                $('#testConnectionBtn').prop('disabled', true);
+
+                // AJAX request to test connection
+                $.ajax({
+                    url: '/admin/email-config/test',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify({
+                        host: host,
+                        port: parseInt(port),
+                        username: username,
+                        password: password
+                    }),
+                    success: function(response) {
+                        if (response.success) {
+                            showAlert(response.message, 'success');
+                        } else {
+                            showAlert(response.message, 'danger');
+                        }
+                    },
+                    error: function() {
+                        showAlert('Error testing connection. Please try again.', 'danger');
+                    },
+                    complete: function() {
+                        $('#testBtnText').text('Test Connection');
+                        $('#testSpinner').addClass('d-none');
+                        $('#testConnectionBtn').prop('disabled', false);
+                    }
+                });
+            });
+
+            function showAlert(message, type) {
+                var alertDiv = $('#testResult');
+                alertDiv.removeClass('d-none alert-success alert-danger alert-warning');
+                alertDiv.addClass('alert-' + type);
+                alertDiv.text(message);
+
+                // Auto-hide after 5 seconds
+                setTimeout(function() {
+                    alertDiv.addClass('d-none');
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

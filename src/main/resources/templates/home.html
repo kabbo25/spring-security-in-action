@@ -28,6 +28,15 @@
                                 </ul>
                             </div>
 
+                            <div class="mt-4">
+                                <h5>Administration:</h5>
+                                <div class="d-grid gap-2">
+                                    <a th:href="@{/admin/email-config}" class="btn btn-outline-primary">
+                                        Configure Email Settings
+                                    </a>
+                                </div>
+                            </div>
+
                             <form th:action="@{/logout}" method="post" class="mt-4">
                                 <button type="submit" class="btn btn-danger">Logout</button>
                             </form>

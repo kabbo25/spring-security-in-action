@@ -1,0 +1,41 @@
+databaseChangeLog:
+  - changeSet:
+      id: 4.0-create-email-config-table
+      author: chapter6-email-config
+      changes:
+        - createTable:
+            tableName: CT_EMAIL_CONFIG
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: host
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: port
+                  type: INT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: password
+                  type: VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: active
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
