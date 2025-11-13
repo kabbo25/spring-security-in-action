@@ -62,10 +62,35 @@ src/main/resources/
 ├── static/
 │   └── css/
 │       └── style.css                    # Custom CSS styles
-└── application.properties                # Application configuration
+├── application.properties                # Application configuration
+└── liquibase.properties                  # Liquibase Maven plugin configuration
 ```
 
 ## Running the Application
+
+### Prerequisites
+Ensure you have PostgreSQL running and the database created. Set the required environment variables:
+
+```bash
+export SSO_USER_DATABASE_URL=jdbc:postgresql://localhost:5432/app
+export SSO_USER_DATABASE_USERNAME=sa
+export SSO_USER_DATABASE_PASSWORD=Admin@123!
+export SSO_USER_DATABASE_DRIVER=org.postgresql.Driver
+```
+
+### Running Liquibase Migrations
+
+The project includes Liquibase Maven plugin for database migrations. Run migrations using:
+
+```bash
+mvn liquibase:update -P liquibase-user
+```
+
+This will:
+- Create the CT_USERS table
+- Load seed data with test users
+
+### Running the Application
 
 1. **Build the project:**
    ```bash
@@ -102,6 +127,29 @@ You can override the default configuration using these environment variables:
 ### Database Schema and Seed Data
 - Database schema is managed by Liquibase and is automatically created on application startup
 - Seed data with test users is automatically loaded via Liquibase
+
+### Liquibase Maven Plugin Commands
+
+The project includes Liquibase Maven plugin with the `liquibase-user` profile. Available commands:
+
+```bash
+# Apply database changes
+mvn liquibase:update -P liquibase-user
+
+# Rollback last change
+mvn liquibase:rollback -P liquibase-user -Dliquibase.rollbackCount=1
+
+# Check database status
+mvn liquibase:status -P liquibase-user
+
+# Generate SQL for changes (without applying)
+mvn liquibase:updateSQL -P liquibase-user
+
+# Clear checksums (use if migration fails)
+mvn liquibase:clearCheckSums -P liquibase-user
+```
+
+Configuration is managed via `src/main/resources/liquibase.properties`
 
 ### Test Users (Pre-loaded)
 The following test users are available for login without registration:
