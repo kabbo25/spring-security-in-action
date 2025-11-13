@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account Not Verified - Spring Security Chapter 6</title>
+    <link rel="stylesheet" th:href="@{/webjars/bootstrap/css/bootstrap.min.css}">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center mt-5">
+            <div class="col-md-6">
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="text-center">Account Not Verified</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="alert alert-warning" role="alert">
+                            <h5 class="alert-heading">Account Verification Required</h5>
+                            <p>Your account has not been verified yet. Please check your email for the verification link and click on it to activate your account.</p>
+                            <hr>
+                            <p class="mb-0">If you haven't received the verification email, please check your spam folder or contact support.</p>
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <a th:href="@{/login}" class="btn btn-primary">Back to Login</a>
+                            <a th:href="@{/adduser}" class="btn btn-outline-secondary">Register New Account</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script th:src="@{/webjars/jquery/jquery.min.js}"></script>
+    <script th:src="@{/webjars/bootstrap/js/bootstrap.bundle.min.js}"></script>
+</body>
+</html>

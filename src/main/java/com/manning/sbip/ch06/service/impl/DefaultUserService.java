@@ -33,4 +33,9 @@ public class DefaultUserService implements UserService {
     public ApplicationUser findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    @Override
+    public ApplicationUser save(ApplicationUser user) {
+        return userRepository.save(user);
+    }
 }

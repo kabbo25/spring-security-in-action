@@ -1,0 +1,33 @@
+databaseChangeLog:
+  - changeSet:
+      id: 3.0-add-verified-column
+      author: chapter6-email-verification
+      changes:
+        - addColumn:
+            tableName: CT_USERS
+            columns:
+              - column:
+                  name: verified
+                  type: BOOLEAN
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: 3.0-create-email-verifications-table
+      author: chapter6-email-verification
+      changes:
+        - createTable:
+            tableName: CT_EMAIL_VERIFICATIONS
+            columns:
+              - column:
+                  name: verification_id
+                  type: VARCHAR(50)
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: username
+                  type: VARCHAR(50)
+                  constraints:
+                    nullable: false

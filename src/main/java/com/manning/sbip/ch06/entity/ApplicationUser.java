@@ -27,4 +27,6 @@ public class ApplicationUser {
     private String email;
 
     private String password;
+
+    private boolean verified;
 }

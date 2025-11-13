@@ -25,7 +25,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         UserDetails userDetails = User.withUsername(username)
                 .password(applicationUser.getPassword())
                 .roles("USER")
-                .disabled(false)
+                .disabled(!applicationUser.isVerified())
                 .build();
 
         return userDetails;

@@ -17,4 +17,14 @@ public class LoginController {
         model.addAttribute("loginError", true);
         return "login";
     }
+
+    @GetMapping("/login-verified")
+    public String loginVerified() {
+        return "login-verified";
+    }
+
+    @GetMapping("/login-disabled")
+    public String loginDisabled() {
+        return "login-disabled";
+    }
 }
