@@ -65,10 +65,11 @@ databaseChangeLog:
               - column:
                   name: organization_code
 
-        - addCheckConstraint:
-            tableName: setting
-            constraintName: chk_jwt_algorithm
-            checkConstraint: "jwt_algorithm IN ('RS256', 'RS384', 'RS512', 'HS256', 'HS384', 'HS512')"
+        - sql:
+            sql: |
+              ALTER TABLE setting
+              ADD CONSTRAINT chk_jwt_algorithm
+              CHECK (jwt_algorithm IN ('RS256', 'RS384', 'RS512', 'HS256', 'HS384', 'HS512'))
 
   - changeSet:
       id: insert-default-organization-setting
@@ -105,22 +106,13 @@ databaseChangeLog:
       comment: Auto-update updated_at timestamp on row modification
       changes:
         - sql:
-            sql: |
-              CREATE OR REPLACE FUNCTION update_updated_at_column()
-              RETURNS TRIGGER AS $$
-              BEGIN
-                NEW.updated_at = CURRENT_TIMESTAMP;
-                RETURN NEW;
-              END;
-              $$ LANGUAGE plpgsql;
-
-              CREATE TRIGGER trigger_setting_updated_at
-              BEFORE UPDATE ON setting
-              FOR EACH ROW
-              EXECUTE FUNCTION update_updated_at_column();
+            splitStatements: false
+            sql: "CREATE OR REPLACE FUNCTION update_updated_at_column() RETURNS TRIGGER AS $$ BEGIN NEW.updated_at = CURRENT_TIMESTAMP; RETURN NEW; END; $$ LANGUAGE plpgsql;"
+        - sql:
+            sql: "CREATE TRIGGER trigger_setting_updated_at BEFORE UPDATE ON setting FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();"
 
       rollback:
         - sql:
-            sql: |
-              DROP TRIGGER IF EXISTS trigger_setting_updated_at ON setting;
-              DROP FUNCTION IF EXISTS update_updated_at_column();
+            sql: "DROP TRIGGER IF EXISTS trigger_setting_updated_at ON setting;"
+        - sql:
+            sql: "DROP FUNCTION IF EXISTS update_updated_at_column();"
